@@ -169,7 +169,6 @@ describe("HTTP Example", function () {
             url: "https://chester-api-staging.cpmplatform.com/api/gql",
             body: body,
           }).then(function (res) {
-            console.log(res.body);
             expect(res.status).to.equal(200);
             expect(res.body.data).to.not.equal(undefined);
             expect(res.body.data.search_products.data).to.be.an("array");
