@@ -138,6 +138,7 @@ describe("HTTP Example", function () {
         const limit = 10;
         const offset = 0;
         response.body.data.master_brands.data.map(item => {
+          console.log(item.brand_id);
           const body = JSON.stringify({
             query: `{
             search_products(
@@ -168,9 +169,9 @@ describe("HTTP Example", function () {
             url: "https://chester-api-staging.cpmplatform.com/api/gql",
             body: body,
           }).then(function (res) {
-            console.log(res.data);
+            console.log(res.body);
             expect(res.status).to.equal(200);
-            expect(res.data).to.not.equal(undefined);
+            expect(res.body.data).to.not.equal(undefined);
             expect(res.body.data.search_products.data).to.be.an("array");
           });
         });
