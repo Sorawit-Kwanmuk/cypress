@@ -143,7 +143,7 @@ describe("HTTP Example", function () {
             search_products(
                   limit: ${limit}
                   offset: ${offset}
-                  brand_id: ${item.brand_id}
+                  brand_id: "${item.brand_id}"
                 ) {
                   data {
                     branch_product_status(branch_id: "string")
