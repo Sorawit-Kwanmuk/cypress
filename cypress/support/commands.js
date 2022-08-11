@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // ***********************************************
 // This example commands.js shows you how to
 // create various custom commands and overwrite
@@ -23,3 +24,28 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+//api Customer Login
+Cypress.Commands.add("apiCustomerLogin", (username, password) => {
+  const data = JSON.stringify({
+    query: `{
+        customer_login(username : "${username}" , password:"${password}"){
+            access_token
+        }
+    }`,
+  });
+  return cy.request({
+    method: "POST",
+    url: "https://chester-api-staging.cpmplatform.com/api/gql",
+    body: data,
+  });
+});
+
+//Web Customer Login
+Cypress.Commands.add("webCustomerLogin", (username, password) => {
+  cy.clearCookies();
+  cy.clearLocalStorage();
+  cy.get("#basic_username").type(username);
+  cy.get("#basic_password").type(password);
+  cy.get(".ant-btn.ant-btn-secondary.ant-btn-round").click();
+});

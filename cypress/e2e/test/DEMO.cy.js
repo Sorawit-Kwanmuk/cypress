@@ -1,7 +1,5 @@
 /* eslint-disable no-undef */
-let CustomerAccessToken;
-let AdminAccessToken;
-let CallcenterAccessToken;
+import "../../support/commands";
 
 describe("HTTP Example", function () {
   it("GET => healthcheck", function () {
@@ -17,30 +15,26 @@ describe("HTTP Example", function () {
       expect(response.body.data.logDbError).to.equal(undefined);
     });
   });
-  it("POST => customer_login", function () {
+  it("POST => Web_customer_login", function () {
     const username = "0877316012";
     const password = "12345678";
-    var data = JSON.stringify({
-      query: `{
-    customer_login(username : "${username}" , password:"${password}"){
-        access_token
-    }
-}`,
+    cy.visit("https://chester-staging.cpmplatform.com/login");
+    Cypress.on("uncaught:exception", (err, runnable) => {
+      return false;
     });
-
-    cy.request({
-      method: "POST",
-      url: "https://chester-api-staging.cpmplatform.com/api/gql",
-      body: data,
-    }).then(function (response) {
+    cy.webCustomerLogin(username, password);
+    cy.wait(1000);
+  });
+  it("POST => api_customer_login", function () {
+    const username = "0877316012";
+    const password = "12345678";
+    cy.apiCustomerLogin(username, password).then(function (response) {
       expect(response.body.data.customer_login.access_token).to.not.equal(
         undefined
       );
-      if (response.body.data.customer_login.access_token !== undefined) {
-        CustomerAccessToken = response.body.data.customer_login.access_token;
-      }
     });
   });
+
   it("POST => admin_login", function () {
     const username = "admin";
     const password = "password";
@@ -67,7 +61,13 @@ describe("HTTP Example", function () {
       expect(response.status).to.equal(200);
       expect(response.statusText).to.equal("OK");
       if (response.body.data.admin_login.access_token !== undefined) {
-        AdminAccessToken = response.body.data.admin_login.access_token;
+        cy.writeFile(
+          "/Users/sorawitkwanmuk/Documents/MyProject/cypress/cypress/e2e/test/localStorage.json",
+          // "./localStorage.json",
+          {
+            AdminAccessToken: response.body.data.admin_login.access_token,
+          }
+        );
       }
     });
   });
@@ -99,11 +99,18 @@ describe("HTTP Example", function () {
       expect(response.status).to.equal(200);
       expect(response.statusText).to.equal("OK");
       if (response.body.data.callcenter_login.access_token !== undefined) {
-        CallcenterAccessToken =
-          response.body.data.callcenter_login.access_token;
+        cy.writeFile(
+          "/Users/sorawitkwanmuk/Documents/MyProject/cypress/cypress/e2e/test/localStorage.json",
+          //example data {"token": {"CustomerAccessToken": "","AdminAccessToken": "","CallcenterAccessToken": ""}}
+          {
+            token: {
+              CallcenterAccessToken:
+                response.body.data.callcenter_login.access_token,
+            },
+          }
+        );
       }
     });
-    return CallcenterAccessToken;
   });
   it("POST => search_products", function () {
     const limit = 10;
@@ -138,7 +145,6 @@ describe("HTTP Example", function () {
         const limit = 10;
         const offset = 0;
         response.body.data.master_brands.data.map(item => {
-          console.log(item.brand_id);
           const body = JSON.stringify({
             query: `{
             search_products(
