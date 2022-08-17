@@ -1,6 +1,12 @@
 /* eslint-disable no-undef */
 import "../../support/commands";
+var token;
 
+beforeEach(() => {
+  Cypress.Cookies.preserveOnce("access_token");
+  // cy.restoreLocalStorageCache();
+  // cy.saveLocalStorageCache();
+});
 describe("HTTP Example", function () {
   it("GET => healthcheck", function () {
     cy.request({
@@ -18,13 +24,19 @@ describe("HTTP Example", function () {
   it("POST => Web_customer_login", function () {
     const username = "0877316012";
     const password = "12345678";
-    cy.visit("https://chester-staging.cpmplatform.com/login");
-    Cypress.on("uncaught:exception", (err, runnable) => {
-      return false;
-    });
-    cy.webCustomerLogin(username, password);
-    cy.wait(1000);
+    // cy.webCustomerLogin(username, password);
+    cy.apiCustomerLogin(username, password)
+      .then(function (response) {
+        expect(response.body.data.customer_login.access_token).to.not.equal(
+          undefined
+        );
+      })
+      .then(function (response) {
+        const access_token = response.body.data.customer_login.access_token;
+        cy.webCustomerLogin(username, password, access_token);
+      });
   });
+
   it("POST => api_customer_login", function () {
     const username = "0877316012";
     const password = "12345678";
